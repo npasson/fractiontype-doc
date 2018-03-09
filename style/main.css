@@ -1,0 +1,76 @@
+html {
+    font-family: "Segoe UI", Verdana, Geneva, sans-serif;
+}
+
+body {
+    scroll-behavior: smooth;
+}
+
+@media (max-width: 999px) {
+    body{
+        margin-left: 10%;
+        margin-right: 10%;
+    }
+}
+
+
+@media (min-width: 1000px) {
+    .content {
+        margin-left: 20%;
+    }
+
+    .nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 15%;
+        padding-left: 20px;
+        border-right: 1px solid #eee;
+        background-color: #fcfcfb;
+        overflow-y: scroll;
+    }
+}
+
+hr {
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
+
+.top {
+    font-size: x-small;
+    text-decoration: none;
+}
+
+.title {
+    font-size: 300%;
+}
+
+.top::before {
+    content: ' ';
+}
+
+/** CODE **/
+
+/* ilp = inline pre */
+
+pre, ilp, code {
+    background-color: #fcfcfb !important;
+}
+
+pre, ilp {
+    border: 0.5px solid #eee;
+}
+
+pre {
+    border-radius: 3px;
+    padding: 0;
+}
+
+ilp {
+    display: inline-block;
+    border-radius: 2px;
+    font-family: monospace;
+    font-style: inherit;
+    padding: 2px;
+}

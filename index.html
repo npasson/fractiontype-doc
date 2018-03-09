@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="style/main.css" />
+    <title>Fraction type documentation</title>
+    <link rel="stylesheet"
+          href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/vs.min.css">
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+</head>
+<body class="start-page">
+<div class="nav">
+    <h1>Navigation</h1>
+    <a href="https://gitlab.tu-berlin.de/npasson/fractiontype">Gitlab link</a>
+<h2>Basics</h2>
+<a href="#basic-usage">Basic usage</a><br/>
+<a href="#types">Supported types</a><br/>
+<a href="#constructors">Constructors</a><br/>
+<a href="#destructors">Destructors</a><br/>
+<h2>Operations</h2>
+<a href="#op-arithmetic">Arithmetic operators</a><br/>
+<a href="#op-comparison">Comparison operators</a><br/>
+<a href="#op-unary">Unary operators</a><br/>
+<a href="#op-casts">Casts</a><br/>
+<h2>Functions</h2>
+<a href="#f-supported"><ilp>is_supported_type()</ilp></a><br/>
+<a href="#f-valid"><ilp>valid()</ilp></a><br/>
+<a href="#f-str"><ilp>str()</ilp></a><br/>
+<a href="#f-c_str"><ilp>c_str()</ilp></a><br/>
+<a href="#f-f_str"><ilp>f_str()</ilp></a><br/>
+<a href="#f-invert"><ilp>invert()</ilp></a><br/>
+<a href="#f-invertf"><ilp>invert(F)</ilp></a><br/>
+<a href="#f-pow"><ilp>pow()</ilp></a><br/>
+<a href="#f-abs"><ilp>abs(T)</ilp></a><br/>
+<h2>Debugging</h2>
+<a href="#d-test"><ilp>test(T,U)</ilp></a><br/>
+<a href="#d-compile">Experimental compile</a>
+</div>
+
+<div class="content">
+    <h1 class="title" id="top">Fraction type documentation</h1>
+
+    <h1>Basics</h1>
+
+    <h2 id="basic-usage">Basic Usage<a class="top" href="#top">Top</a></h2>
+
+    Here's a basic program demonstrating the easy use of the Fraction class.
+
+    Assume you'd like to write the mathematical function <ilp>f(x)=1/x</ilp>. In a normal program, you'd write
+
+    <pre><code class="cpp">
+    double f(int x)
+    </code></pre>
+
+    But what about things like <ilp>f(f(f(x)))</ilp>? Okay, we could do
+
+    <pre><code class="cpp">
+    double f(double x)
+    </code></pre>
+
+    But then you'd have the topic of floating-point accuracy which means your code will get inaccurate with large numbers. So, how do we solve this? With the <ilp>Fraction</ilp> class. Just replace all your <ilp>int</ilp>, <ilp>double</ilp>, <ilp>float</ilp>, etc. with the keyword <ilp>Fraction</ilp>.
+
+    <pre><code class="cpp">
+    #include &lt;cstdio&gt;
+
+    #include "npasson_fraction.hpp"
+    using npasson::Fraction;
+
+    Fraction f(Fraction x) {
+        return 1/x;
+    }
+
+    double d(double x) {
+        return 1/x;
+    }
+
+    int main() {
+        // for f(x)=1/x, it needs to hold that x == f(f(x)) == f(f(f(f(x)))) and so on.
+        Fraction a = 1'000'000'000'000'000;
+        double   b = 1'000'000'000'000'000;
+
+        if (a == f(f(a)))               printf("Fraction Test 1 holds\n");
+        if (a == f(f(f(f(a)))))         printf("Fraction Test 2 holds\n");
+        if (a == f(f(f(f(f(f(a)))))))   printf("Fraction Test 3 holds\n");
+
+        if (a == d(d(b)))               printf("Double Test 1 holds\n");
+        if (a == d(d(d(d(b)))))         printf("Double Test 2 holds\n");
+        if (a == d(d(d(d(d(d(b)))))))   printf("Double Test 3 holds\n");
+    }
+    </code></pre>
+
+    Compiled with
+
+    <pre><code class="cpp">
+    g++ -std=c++17 -Wall -O0
+    </code></pre>
+
+    the program outputs
+
+    <pre><code class="cpp">
+    Fraction Test 1 holds
+    Fraction Test 2 holds
+    Fraction Test 3 holds
+
+    Process finished with exit code 0
+    </code></pre>
+
+    As demonstrated in the example, you can treat Fraction like a normal numeric type. You can initialize it in many different ways, see <a href="#constructors">Constructors</a>, and also use it in most calculations, see <a href="#op-arithmetic">Operators</a>.
+
+    <h2 id="types">Supported types<a class="top" href="#top">Top</a></h2>
+
+    The following types are completely supported in all operations with Fractions:
+    <ul>
+        <li><ilp>signed short</ilp></li>
+        <li><ilp>signed int</ilp></li>
+        <li><ilp>signed long int</ilp></li>
+        <li><ilp>signed long long int</ilp></li>
+        <li><ilp>unsigned short</ilp></li>
+        <li><ilp>unsigned int</ilp></li>
+        <li><ilp>unsigned long int</ilp></li>
+        <li><ilp>unsigned long long int</ilp></li>
+        <li><ilp>float</ilp></li>
+        <li><ilp>double</ilp></li>
+    </ul>
+
+    The following types are partially supported:
+    <ul>
+        <li><ilp>long double</ilp></li>
+    </ul>
+
+    <h2 id="constructors">Constructors<a class="top" href="#top">Top</a></h2>
+
+    The following constructors exist:
+    <pre><code class="cpp">
+    Fraction()
+    Fraction(Fraction)
+    Fraction(long long signed int, long long signed int);
+    Fraction(short)
+    Fraction(unsigned short)
+    Fraction(int)
+    Fraction(unsigned int)
+    Fraction(long int)
+    Fraction(unsigned long int)
+    Fraction(long long int)
+    Fraction(unsigned long long int)
+    Fraction(float)
+    Fraction(double)
+    Fraction(long double)
+    Fraction(bool)
+    </code></pre>
+
+
+    <h3>Implicit constructors</h3>
+    Implicit construction is allowed for the following types:
+    <ul>
+    <li>signed int</li>
+    <li>signed long long int</li>
+    <li>double</li>
+    </ul>
+    You can use these types like so:
+    <pre><code class="cpp">
+    Fraction a = 5;
+    Fraction b = 78236487263874622ll;
+    Fraction c = 3.7;
+    </code></pre>
+
+    These types can also be used in place of Fraction types, as implicit conversion will take care of them.
+
+    <h3>(Mathematical) fraction constructor</h3>
+
+    <pre><code class="cpp">
+    Fraction(long long signed int, long long signed int);
+    </code></pre>
+
+    is the fraction constructor. It is used like <ilp>Fraction(a,b)</ilp> which will create a Fraction <ilp>a/b</ilp>. This is best used for non-integer values which need to retain accuracy.
+
+    <h3>Explicit constructors</h3>
+    For all other types, an explicit constructor is required.
+    <pre><code class="cpp">
+    Fraction a(26.3f); 	// float
+    Fraction b("1.3"); 	// std::string
+    Fraction c(a); 		// Fraction
+    Fraction d("2,5"); 	// std::string with European decimal place
+    const char* temp = "3.7";
+    Fraction f(temp); 	// const char*
+    </code></pre>
+
+    <h3>Bool constructor</h3>
+    The bool constructor works as following. Given a true, it is functionally equivalent to an empty constructor:
+    <pre><code class="cpp">
+    Fraction(true) == Fraction()
+    </code></pre>
+
+    Given a false, it constructs a Fraction where the Fraction::_invalid bit is triggered. This bit indicates an invalid Fraction. Invalid fractions have undefined behavior on all operations. Validity can and should be checked via <a href="#f-valid"><ilp>valid()</ilp></a>:
+    <pre><code class="cpp">
+    Fraction f(false);
+
+    if (f.valid()) {
+        // will not execute
+    }
+    </code></pre>
+
+    There also exists the macro <ilp>INVALID_FRACTION</ilp>, which is defined as <ilp>Fraction(false)</ilp> and may be returned by functions. It is <b>not safe to check against this macro</b> to ensure validity.
+
+    <h2 id="destructors">Destructors<a class="top" href="#top">Top</a></h2>
+
+    There exists only one destructor:
+
+    <pre><code class="cpp">
+    ~Fraction() = default;
+    </code></pre>
+
+    <h1>Operations</h1>
+
+    Every operator listed here can either be used between two Fractions, or a Fraction and a type listed in the <a href="#types">Supported types</a> list.
+
+    <h2 id="op-arithmetic">Arithmetic operators<a class="top" href="#top">Top</a></h2>
+    The following arithmetic operators exist:
+
+    <ul>
+        <li><ilp>+</ilp> Addition</li>
+        <li><ilp>-</ilp> Subtraction</li>
+        <li><ilp>*</ilp> Multiplication</li>
+        <li><ilp>/</ilp> Division</li>
+        <li><ilp>+=</ilp> Addition-assignment</li>
+        <li><ilp>-=</ilp> Subtraction-assignment</li>
+        <li><ilp>*=</ilp> Multiplication-assignment</li>
+        <li><ilp>/=</ilp> Division-assignment</li>
+    </ul>
+
+    With <ilp>T</ilp> a type from the <a href="#types">supported types</a> list, the operators return according to the following list:
+
+    <ul>
+        <li><ilp>+</ilp>,<ilp>-</ilp>,<ilp>*</ilp> and <ilp>/</ilp> always return a <ilp>Fraction</ilp>.</li>
+        <li><ilp>+=</ilp>,<ilp>-=</ilp>,<ilp>*=</ilp> and <ilp>/=</ilp> return a Fraction when the first argument is a Fraction. Otherwise, when the first argument is <ilp>T</ilp>, they return <ilp>T</ilp>.</li>
+    </ul>
+
+    <h2 id="op-comparison">Comparison operators<a class="top" href="#top">Top</a></h2>
+    The following comparison operators exist:
+
+    <ul>
+        <li><ilp>==</ilp> Equals</li>
+        <li><ilp>!=</ilp> Not Equals</li>
+        <li><ilp>< </ilp> Smaller than</li>
+        <li><ilp>> </ilp> Larger than</li>
+        <li><ilp><=</ilp> Smaller or equal</li>
+        <li><ilp>>=</ilp> Larger or equal</li>
+    </ul>
+
+    When comparing, the usual math rules apply, that means <ilp>1/2 == 2/4 == 30/60</ilp> holds, as does <ilp>1/2 > 1/4 > 3/16</ilp>
+
+    <h2 id="op-unary">Unary operators<a class="top" href="#top">Top</a></h2>
+    Assuming <ilp>Fraction f</ilp>, the following unary operators exist:
+
+    <ul>
+        <li><ilp>f++</ilp> Post-Increment</li>
+        <li><ilp>++f</ilp> Pre-Increment</li>
+        <li><ilp>f--</ilp> Post-Decrement</li>
+        <li><ilp>--f</ilp> Pre-Decrement</li>
+        <li><ilp>-f</ilp> Additive Inverse</li>
+        <li><ilp>+f</ilp> Plus Operator</li>
+    </ul>
+
+    <p>The unary <ilp>+</ilp> operator exists for some reason, and <ilp>+f == f</ilp>. There is no use to it.</p>
+    <p>The rest of the operators do what you'd expect, that means <ilp>-(-f) == f</ilp> holds.</p>
+
+    <h2 id="op-casts">Casts<a class="top" href="#top">Top</a></h2>
+
+    You can cast to all <a href="#types">supported types</a> and to <ilp>bool</ilp>.
+
+    <ul>
+        <li>The casts to all integer types are <i>truncating</i> casts, this means 3.75 would become 3. </li>
+        <li>The cast to bool is the same as <ilp>f != 0</ilp>.</li>
+        <li>Currently, the cast is implemented as a simple division. There is no overflow check.</li>
+    </ul>
+
+    Example cast:
+
+    <pre><code class="cpp">
+    Fraction f = 3.75;
+    int i = (int)f;
+    // i is now 3
+    </code></pre>
+
+    <h1>Functions</h1>
+
+    <h2 id="f-supported"><ilp>is_supported_type()</ilp><a class="top" href="#top">Top</a></h2>
+
+    <pre><code class="cpp">
+    template &lt;typename T&gt; static constexpr bool npasson::Fraction::is_supported_type()
+    </code></pre>
+
+    Example usage:
+
+    <pre><code class="cpp">
+    if(Fraction::is_arithmetic_type&lt;float&gt;()) {
+        // do something
+    }
+    </code></pre>
+
+    Returns <ilp>true</ilp> if <ilp>T</ilp> is on the list of <a href="#types">supported types</a>.
+
+
+    <h2 id="f-valid"><ilp>valid()</ilp><a class="top" href="#top">Top</a></h2>
+
+    <pre><code class="cpp">
+    bool npasson::Fraction::valid() const
+    </code></pre>
+
+    Example usage:
+
+    <pre><code class="cpp">
+    Fraction f = 3;
+    f /= 0;
+
+    if(f.valid()) {
+        // does not execute, f has been divided by zero and is not valid anymore
+    }
+    </code></pre>
+
+    Returns <b>false</b> if the Fraction is invalid. In that case, all operations made on the Fraction are undefined behavior. This can happen in three cases:
+
+    <ol>
+        <li>The Fraction has been subjected to an invalid operation, such as dividing by zero.</li>
+        <li>The Fraction has been initialized with a <ilp>std::string</ilp>/<ilp>char*</ilp> which does not represent a number.</li>
+        <li>The Fraction has been initialized via <ilp>Fraction(false)</ilp>.</li>
+    </ol>
+
+    <h2 id="f-str"><ilp>str()</ilp><a class="top" href="#top">Top</a></h2>
+
+    <pre><code class="cpp">
+    std::string npasson::Fraction::str()
+    </code></pre>
+
+    Returns a <i>decimal</i> <ilp>std::string</ilp> representation of the Fraction.<br/>
+
+    Example usage:
+    <pre><code class="cpp">
+    Fraction f = 25;
+
+    std::string str = "I am " + f.str() + " years old!";
+    </code></pre>
+
+    <h2 id="f-c_str"><ilp>c_str()</ilp><a class="top" href="#top">Top</a></h2>
+
+    <pre><code class="cpp">
+    const char* npasson::Fraction::c_str()
+    </code></pre>
+
+    Returns a decimal <ilp>const char*</ilp> representation of the Fraction.<br/>
+
+    Example usage:
+
+    <pre><code class="cpp">
+    Fraction f = 25;
+
+    printf("I am %s years old!", f.c_str());
+    </code></pre>
+
+    <h2 id="f-f_str"><ilp>f_str()</ilp><a class="top" href="#top">Top</a></h2>
+
+    <pre><code class="cpp">
+    std::string npasson::Fraction::f_str()
+    </code></pre>
+
+    Returns a <i>fraction</i> <ilp>std::string</ilp> representation of the Fraction.<br/>
+
+    Example usage:
+
+    <pre><code class="cpp">
+    Fraction f = 3.75;
+
+    std::string str = f.str() " in fraction form is " + f.f_str();
+    std::cout &lt;&lt; str &lt;&lt; std::endl;
+    </code></pre>
+
+    This will output:
+
+    <pre><code class="cpp">
+    3.75 in fraction form is 15/4
+    </code></pre>
+
+    <h2 id="f-invert"><ilp>invert()</ilp><a class="top" href="#top">Top</a></h2>
+    <pre><code class="cpp">
+    npasson::Fraction npasson::Fraction::invert() const
+    </code></pre>
+
+    Returns an inverted fraction.
+
+    <h2 id="f-invertf"><ilp>invert(Fraction)</ilp><a class="top" href="#top">Top</a></h2>
+    <pre><code class="cpp">
+    static void npasson::Fraction::invert(Fraction&)
+    </code></pre>
+
+    Inverts the given Fraction.
+
+
+    <h2 id="f-pow"><ilp>pow(int)</ilp><a class="top" href="#top">Top</a></h2>
+    <pre><code class="cpp">
+    npasson::Fraction npasson::Fraction::pow(int)
+    </code></pre>
+
+
+    <ilp>f.pow(x)</ilp> returns <ilp>f<sup>x</sup></ilp>.
+
+    <h2 id="f-abs"><ilp>abs(T)</ilp><a class="top" href="#top">Top</a></h2>
+    <pre><code class="cpp">
+    template &lt;typename T&gt; npasson::abs(T t)
+    </code></pre>
+
+    Returns the absolute value of the type. The type needs to support <ilp>operator-()</ilp> and <ilp>operator<(T, T)</ilp>.
+
+    <h1>Debugging</h1>
+
+    <strong>To enable debugging functions, you need to <ilp>#define NPASSON_DEBUG</ilp> before including the header.</strong>
+
+    <h2 id="d-test"><ilp>test(T,U)</ilp><a class="top" href="#top">Top</a></h2>
+    <pre><code class="cpp">
+    template &lt;typename T, typename U&gt; npasson::Fraction::test(T& a, U& b)
+    </code></pre>
+
+    <p>Prints the complete list of operators available to the Fraction class and the results between the two types. Results are cast to double after operation to ensure displayability. This can be used to find bugs in operators.</p>
+
+    <p>Example usage:</p>
+
+    <pre><code class="cpp">
+    float one = 16;
+    npasson::Fraction two = 3.5;
+    npasson::Fraction::test(one, two);
+    </code></pre>
+
+    This prints:
+
+    <pre><code class="nohighlight">
+    ==========================
+    |   Operator test run    |
+    ==========================
+    | a is      16 of type float
+    | b is     3.5 of type npasson::Fraction
+    | a+b is    19.5 of type npasson::Fraction
+    | b+a is    19.5 of type npasson::Fraction
+    | a-b is    12.5 of type npasson::Fraction
+    | b-a is   -12.5 of type npasson::Fraction
+    | a*b is      56 of type npasson::Fraction
+    | b*a is      56 of type npasson::Fraction
+    | a/b is  4.57143 of type npasson::Fraction
+    | b/a is  0.21875 of type npasson::Fraction
+    ==========================
+    | (operators are reset before
+    |  each following operation)
+    --------------------------
+    | a+=b is      19.5 of type float
+    |   a is now   19.5
+    |   b is now    3.5
+    ---------=RESET=----------
+    |   a is now     16
+    |   b is now    3.5
+    | b+=a is      19.5 of type npasson::Fraction
+    |   a is now     16
+    |   b is now   19.5
+    ---------=RESET=----------
+    |   a is now     16
+    |   b is now    3.5
+    | a-=b is      12.5 of type float
+    |   a is now   12.5
+    |   b is now    3.5
+    ---------=RESET=----------
+    |   a is now     16
+    |   b is now    3.5
+    | b-=a is     -12.5 of type npasson::Fraction
+    |   a is now     16
+    |   b is now  -12.5
+    ---------=RESET=----------
+    |   a is now     16
+    |   b is now    3.5
+    | a*=b is        56 of type float
+    |   a is now     56
+    |   b is now    3.5
+    ---------=RESET=----------
+    |   a is now     16
+    |   b is now    3.5
+    | b*=a is        56 of type npasson::Fraction
+    |   a is now     16
+    |   b is now     56
+    ---------=RESET=----------
+    |   a is now     16
+    |   b is now    3.5
+    | a/=b is    4.57143 of type float
+    |   a is now 4.57143
+    |   b is now    3.5
+    ---------=RESET=----------
+    |   a is now     16
+    |   b is now    3.5
+    | b/=a is    0.21875 of type npasson::Fraction
+    |   a is now     16
+    |   b is now 0.21875
+    ---------=RESET=----------
+    |   a is now     16
+    |   b is now    3.5
+    ==========================
+    | Comparison
+    | a is      16
+    | b is     3.5
+    | a&lt;b is false
+    | a&gt;b is true
+    | a&lt;=b is false
+    | a&gt;=b is true
+    | a==b is false
+    | a!=b is true
+    ==========================
+    </code></pre>
+
+    <h2 id="d-compile">Experimental compile<a class="top" href="#top">Top</a></h2>
+    <pre><code class="cpp">
+    #define NPASSON_EXPERIMENTAL_COMPILE
+    </code></pre>
+
+    Add this line before including the header. This will include the <ilp>.cpp</ilp> file in the <ilp>.hpp</ilp> file instead of vice versa. This is ugly programming and is not recommended by me. Bugs only surfacing with this <ilp>#define</ilp> have low priority by default.
+
+    That being said, with <ilp>NPASSON_EXPERIMENTAL_COMPILE</ilp> being defined, you can compile without having to add anything. No object file, no additional file argument. Just add the header and compile the file. This is good if you make frequent code changes to the Fraction library.
+<hr />
+
+Syntax highlighting by <a href="https://highlightjs.org/">highlight.js</a> using the <ilp>vs</ilp> theme.
+
+<hr />
+
+<script>hljs.initHighlightingOnLoad();</script>
+</div>
+</body>
+</html>
